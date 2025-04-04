@@ -1,0 +1,11 @@
+int main() {
+    float x = 10.5;
+    if (x > 5) {
+        x += 2;
+    }
+    // This is a single-line comment
+    /*
+       This is a multi-line comment
+    */
+    return 0;
+}

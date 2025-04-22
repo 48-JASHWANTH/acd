@@ -27,7 +27,7 @@ class SLRParser:
                         self.terminals.add(symbol)
 
         self.start_symbol = list(self.grammar.keys())[0]
-        self.terminals.add("$")  
+        self.terminals.add("$")
 
         augmented_start = self.start_symbol + "'"
         self.grammar[augmented_start] = [[self.start_symbol]]
@@ -41,7 +41,7 @@ class SLRParser:
         def closure(items):
             closure_set = set(items)
             added = True
-            
+
             while added:
                 added = False
                 new_items = set(closure_set)
@@ -55,7 +55,7 @@ class SLRParser:
                                 if item not in new_items:
                                     new_items.add(item)
                                     added = True
-                
+
                 closure_set = new_items
 
             return closure_set
@@ -85,7 +85,7 @@ class SLRParser:
                 if next_state and frozenset(next_state) not in states_map:
                     states_map[frozenset(next_state)] = len(self.lr0_items)
                     self.lr0_items.append(next_state)
-            
+
             index += 1
 
         for state_index, state in enumerate(self.lr0_items):
@@ -129,7 +129,7 @@ class SLRParser:
         headers = sorted(self.terminals | (self.non_terminals - {self.start_symbol}))
         print(f"{'State':<8} " + " ".join(f"{h:<8}" for h in headers))
         print("-" * (10 + 9 * len(headers)))
-        
+
         for state in sorted(self.action_table.keys() | self.goto_table.keys()):
             row = [f"{state:<8}"]
             for symbol in headers:
@@ -139,31 +139,32 @@ class SLRParser:
 
     def parse_input(self):
         input_string = self.tokenize_symbols(input("\nEnter input string to parse: ")) + ["$"]
-        stack = [0]
+        stack = [(0, "")]  # Track states with symbols
         pointer = 0
 
         print("\nParsing Steps:")
-        print(f"{'Stack':<20} {'Input':<20} {'Action':<20}")
-        print("-" * 60)
-        
+        print(f"{'Stack':<30} {'Input':<20} {'Action':<20}")
+        print("-" * 70)
+
         while True:
-            state = stack[-1]
-            symbol = input_string[pointer]
-            action = self.action_table.get(state, {}).get(symbol, "ERROR")
-            print(f"{' '.join(map(str, stack)):<20} {''.join(input_string[pointer:]):<20} {action:<20}")
+            state, symbol = stack[-1]
+            current_input = input_string[pointer]
+            action = self.action_table.get(state, {}).get(current_input, "ERROR")
+            print(f"${''.join([f'{s[1]}{s[0]}' for s in stack]):<30} {''.join(input_string[pointer:]):<20} {action:<20}")
             if action == "ERROR":
                 print("\nParsing error! String Rejected.")
                 return False
-
             if "S" in action:
-                stack.append(int(action[1:]))
+                new_state = int(action[1:])
+                stack.append((new_state, current_input))
                 pointer += 1
             elif action.startswith("R"):
                 rule_num = int(action[1:])
                 lhs, rhs = self.reductions[rule_num]
                 for _ in range(len(rhs)):
                     stack.pop()
-                stack.append(self.goto_table[stack[-1]][lhs])
+                top_state = stack[-1][0]
+                stack.append((self.goto_table[top_state][lhs], lhs))
             elif action == "ACC":
                 print("\nString Accepted.")
                 return True

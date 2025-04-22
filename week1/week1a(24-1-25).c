@@ -4,10 +4,6 @@
 
 void wri(char *fname) {
     FILE *fileptr = fopen(fname, "w");
-    if (fileptr == NULL) {
-        printf("Error\n");
-        return;
-    }
     char data[100];
     printf("Enter data : ");
     fgets(data, sizeof(data), stdin);
@@ -19,10 +15,6 @@ void wri(char *fname) {
 
 void rea(char *fname) {
     FILE *fileptr = fopen(fname, "r");
-    if (fileptr == NULL) {
-        printf("Error\n");
-        return;
-    }
     char ch;
     printf("Contents of %s:\n", fname);
     while ((ch = fgetc(fileptr)) != EOF) {

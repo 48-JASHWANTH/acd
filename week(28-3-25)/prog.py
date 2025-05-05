@@ -1,6 +1,7 @@
 from collections import defaultdict
 import re
 
+
 class SLRParser:
     def __init__(self):
         self.grammar = {}
@@ -12,6 +13,7 @@ class SLRParser:
         self.reductions = {}
         self.start_symbol = None
 
+
     def input_grammar(self):
         n = int(input("Enter number of productions: "))
         for _ in range(n):
@@ -21,30 +23,37 @@ class SLRParser:
             self.grammar[lhs] = [list(self.tokenize_symbols(r)) for r in rhs]
             self.non_terminals.add(lhs)
 
+
             for production in rhs:
                 for symbol in self.tokenize_symbols(production):
                     if symbol.islower() or not symbol.isalpha():
                         self.terminals.add(symbol)
 
+
         self.start_symbol = list(self.grammar.keys())[0]
         self.terminals.add("$")
+
 
         augmented_start = self.start_symbol + "'"
         self.grammar[augmented_start] = [[self.start_symbol]]
         self.start_symbol = augmented_start
         self.non_terminals.add(augmented_start)
 
+
     def tokenize_symbols(self, production):
         return re.findall(r'[A-Z]+|.', production)
+
 
     def generate_lr0_items(self):
         def closure(items):
             closure_set = set(items)
             added = True
 
+
             while added:
                 added = False
                 new_items = set(closure_set)
+
 
                 for lhs, production, dot_pos in closure_set:
                     if dot_pos < len(production):
@@ -56,9 +65,12 @@ class SLRParser:
                                     new_items.add(item)
                                     added = True
 
+
                 closure_set = new_items
 
+
             return closure_set
+
 
         def goto(state, symbol):
             next_state = set()
@@ -67,18 +79,22 @@ class SLRParser:
                     next_state.add((lhs, production, dot_pos + 1))
             return closure(next_state)
 
+
         start_item = (self.start_symbol, tuple(self.grammar[self.start_symbol][0]), 0)
         self.lr0_items = [closure({start_item})]
         states_map = {frozenset(self.lr0_items[0]): 0}
+
 
         index = 0
         while index < len(self.lr0_items):
             state = self.lr0_items[index]
             symbols = set()
 
+
             for lhs, production, dot_pos in state:
                 if dot_pos < len(production):
                     symbols.add(production[dot_pos])
+
 
             for symbol in symbols:
                 next_state = goto(state, symbol)
@@ -86,7 +102,9 @@ class SLRParser:
                     states_map[frozenset(next_state)] = len(self.lr0_items)
                     self.lr0_items.append(next_state)
 
+
             index += 1
+
 
         for state_index, state in enumerate(self.lr0_items):
             for lhs, production, dot_pos in state:
@@ -107,10 +125,12 @@ class SLRParser:
                         for terminal in follow_set:
                             self.action_table[state_index][terminal] = f"R{rule_num}"
 
+
     def compute_follow(self, symbol):
         follow_set = set()
         if symbol == self.start_symbol:
             follow_set.add("$")
+
 
         for lhs, productions in self.grammar.items():
             for production in productions:
@@ -124,11 +144,13 @@ class SLRParser:
                             follow_set |= self.compute_follow(lhs)
         return follow_set
 
+
     def print_parsing_table(self):
         print("\nParsing Table:")
         headers = sorted(self.terminals | (self.non_terminals - {self.start_symbol}))
         print(f"{'State':<8} " + " ".join(f"{h:<8}" for h in headers))
         print("-" * (10 + 9 * len(headers)))
+
 
         for state in sorted(self.action_table.keys() | self.goto_table.keys()):
             row = [f"{state:<8}"]
@@ -137,14 +159,17 @@ class SLRParser:
                 row.append(f"{str(value):<8}")
             print(" ".join(row))
 
+
     def parse_input(self):
         input_string = self.tokenize_symbols(input("\nEnter input string to parse: ")) + ["$"]
         stack = [(0, "")]  # Track states with symbols
         pointer = 0
 
+
         print("\nParsing Steps:")
         print(f"{'Stack':<30} {'Input':<20} {'Action':<20}")
         print("-" * 70)
+
 
         while True:
             state, symbol = stack[-1]
@@ -171,6 +196,7 @@ class SLRParser:
             else:
                 print("\nParsing error! String Rejected.")
                 return False
+
 
 # Run the parser
 parser = SLRParser()

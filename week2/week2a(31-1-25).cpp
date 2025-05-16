@@ -80,7 +80,7 @@ void processLine(char *line) {
         }
         token = strtok(NULL, " \t\n");
     }
-}
+} 
 
 // Function to process comments
 void processComments(FILE *file) {

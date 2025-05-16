@@ -5,7 +5,7 @@ def compute_first(grammar, symbol, first):
         return first[symbol]
     first[symbol] = set()
    
-    if not symbol.isupper():  # Terminal
+    if not symbol.isupper():  
         first[symbol].add(symbol)
         return first[symbol]
    
@@ -21,7 +21,7 @@ def compute_first(grammar, symbol, first):
     return first[symbol]
 
 def compute_follow(grammar, start_symbol, first, follow):
-    follow[start_symbol].add('$')  # End marker for start symbol
+    follow[start_symbol].add('$')  
    
     while True:
         updated = False
@@ -61,7 +61,7 @@ def main():
     for non_terminal in grammar:
         compute_first(grammar, non_terminal, first)
    
-    start_symbol = next(iter(grammar))  # First non-terminal as start
+    start_symbol = next(iter(grammar))
     compute_follow(grammar, start_symbol, first, follow)
    
     print("\nFirst Sets:")

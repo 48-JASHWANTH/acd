@@ -15,9 +15,9 @@ for _ in range(n):
     eps = input(f"ε-transitions from {state} (comma-separated or blank): ").split(',')
     nfa[state] = {'ε': [s.strip() for s in eps if s.strip()]}
 
-start = input("Compute ε-closure of: ")
+start = input("Computing ε-closure of: ")
 if start in nfa:
     result = epsilon_closure(start, nfa)
-    print(f"ε-closure({start}) = {{ {', '.join(sorted(result))} }}")
+    print(result)
 else:
     print("State not in NFA.")
